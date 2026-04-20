@@ -1,65 +1,148 @@
-import Image from "next/image";
+import type { Metadata } from "next";
+import { stations, getAverageAqi, getOverallCategory } from "@/lib/data";
+import StationCard from "@/components/StationCard";
+import { AqiBadge } from "@/components/AqiBadge";
 
-export default function Home() {
+export const metadata: Metadata = { title: "головна" };
+
+export const dynamic = "force-dynamic";
+
+export default async function HomePage() {
+  const activeCount = stations.filter((s) => s.isActive).length;
+  const avgAqi = getAverageAqi();
+  const overallCategory = getOverallCategory();
+  const cities = [...new Set(stations.map((s) => s.city))].length;
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <>
+      <section className="hero-section">
+        <div className="container">
+          <div className="row">
+            <div className="col-lg-8">
+              <h1>
+                моніторинг
+                <br />
+                <span style={{ color: "var(--color-primary)" }}>
+                  якості повітря
+                </span>{" "}
+                України
+              </h1>
+              <div className="disclaimer-banner mt-4" style={{ maxWidth: 520 }}>
+                актуальні дані з {activeCount} моніторингових станцій у {cities}{" "}
+                містах. слідкуйте за рівнем забруднення в реальному часі.
+              </div>
+              <div className="d-flex align-items-center gap-3 mt-3">
+                <AqiBadge category={overallCategory} />
+                <span
+                  style={{ color: "var(--color-muted)", fontSize: "0.85rem" }}
+                >
+                  загальний стан повітря зараз
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* stats */}
+      <section className="stats-strip">
+        <div className="container">
+          <div className="row g-0 justify-content-center">
+            {[
+              { value: activeCount, label: "активних станцій" },
+              { value: cities, label: "міст під наглядом" },
+              { value: avgAqi, label: "середній AQI" },
+              {
+                value: stations.filter((s) => s.currentData.aqi <= 50).length,
+                label: "станцій — добре повітря",
+              },
+            ].map((s) => (
+              <div key={s.label} className="col-6 col-md-3">
+                <div className="stat-item">
+                  <div className="stat-value">{s.value}</div>
+                  <div className="stat-label">{s.label}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* stations grid */}
+      <section style={{ padding: "3rem 0" }}>
+        <div className="container">
+          <h2 className="section-title">моніторингові станції</h2>
+          <p className="section-sub">
+            оберіть станцію для детальних показників
           </p>
+          <div className="row g-4">
+            {stations.map((station) => (
+              <div key={station.id} className="col-12 col-sm-6 col-lg-4">
+                <StationCard station={station} />
+              </div>
+            ))}
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </section>
+
+      {/* AQI legend */}
+      <section
+        style={{
+          background: "var(--color-surface)",
+          borderTop: "1px solid var(--color-border)",
+          padding: "2.5rem 0",
+        }}
+      >
+        <div className="container">
+          <h2 className="section-title mb-3">шкала AQI</h2>
+          <div className="d-flex flex-wrap gap-4">
+            {[
+              { range: "0–50", label: "повітря хароше", cls: "badge-good" },
+              {
+                range: "51–100",
+                label: "ну так нормально",
+                cls: "badge-moderate",
+              },
+              {
+                range: "101–150",
+                label: "з чутливої групи? ну таке собі",
+                cls: "badge-sensitive",
+              },
+              {
+                range: "151–200",
+                label: "пахне смаженим",
+                cls: "badge-unhealthy",
+              },
+              {
+                range: "201+",
+                label: "капєц все горить",
+                cls: "badge-very-unhealthy",
+              },
+            ].map((item) => (
+              <div
+                key={item.range}
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "0.4rem",
+                }}
+              >
+                <span
+                  className={`aqi-badge ${item.cls}`}
+                  style={{ whiteSpace: "nowrap" }}
+                >
+                  {item.label}
+                </span>
+                <span
+                  style={{ fontSize: "0.75rem", color: "var(--color-muted)" }}
+                >
+                  AQI {item.range}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
-      </main>
-    </div>
+      </section>
+    </>
   );
 }
