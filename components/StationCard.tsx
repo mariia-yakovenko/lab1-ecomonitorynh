@@ -46,6 +46,7 @@ export default function StationCard({
           </div>
 
           <AqiBadge category={currentData.category} />
+          <span className="type-badge">{type}</span>
         </div>
 
         <div className="card-bottom">
