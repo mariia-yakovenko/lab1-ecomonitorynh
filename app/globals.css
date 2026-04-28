@@ -83,7 +83,6 @@
 
 html {
   font-size: 16px;
-  scroll-behavior: smooth;
 }
 
 body {
@@ -528,6 +527,15 @@ a:focus {
   font-size: 0.85rem;
   color: var(--color-muted);
   margin: 0;
+}
+
+.leaflet-popup-content {
+  font-family: system-ui, sans-serif;
+  margin: 10px 14px;
+}
+.leaflet-popup-content-wrapper {
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-hover);
 }
 
 @media (max-width: 576px) {

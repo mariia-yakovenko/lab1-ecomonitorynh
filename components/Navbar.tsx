@@ -4,6 +4,7 @@ import { usePathname } from 'next/navigation';
 
 const links = [
   { href: '/', label: 'головна' },
+  { href: '/map', label: 'карта' },
   { href: '/about', label: 'про проєкт' },
   { href: '/guide', label: 'довідник' },
 ];
